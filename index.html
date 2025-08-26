@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FACTURA</title>
+  <link rel="icon" href="https://github.com/rimedhn/demo/blob/main/Logo.png?raw=true" type="image/x-icon">
+  <style>
+    @page {
+      size: letter;
+      margin: 0.7in 0.5in 0.7in 0.5in;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .factura-carta {
+      width: 8in;
+      margin: auto;
+      background: #fff;
+      min-height: 10in;
+      padding: 0;
+      position: relative;
+    }
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 5px;
+    }
+    .header-table img {
+      width: 90px;
+      height: 90px;
+    }
+    .titulo-factura {
+      font-size: 28px;
+      font-weight: bold;
+      text-align: left;
+      padding-bottom: 3px;
+    }
+    .datos-table, .detalle-table, .totales-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .datos-table td, .datos-table th {
+      font-size: 15px;
+      padding: 2px 6px;
+      border: none;
+      vertical-align: top;
+    }
+    .detalle-table th, .detalle-table td {
+      font-size: 16px;
+      padding: 3px 4px;
+      border: 1px solid #222;
+      vertical-align: top;
+    }
+    .detalle-table th {
+      background: #f4f4f4;
+    }
+    .detalle-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-bottom: 2px solid #222;
+    }
+    .detalle-table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+    .detalle-table tr {
+      page-break-inside: avoid;
+    }
+    .totales-table {
+      margin-top: 10px;
+      margin-bottom: 0;
+      font-size: 17px;
+      text-align: right;
+    }
+    .totales-table td {
+      border: none;
+      padding: 2px 6px;
+    }
+    .totales-table .total-label {
+      font-weight: bold;
+      font-size: 18px;
+      border-top: 2px solid #222;
+    }
+    .barcode-container {
+      text-align: right;
+      padding-top: 10px;
+      padding-bottom: 2px;
+    }
+    .footer-info {
+      text-align: left;
+      font-size: 14px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+    .monto-letras {
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 5px;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      background: #f7f7f7;
+      padding: 5px 0;
+      border-radius: 8px;
+    }
+    @media print {
+      body, .factura-carta {
+        background: #fff !important;
+      }
+      thead {display: table-header-group;}
+      tfoot {display: table-footer-group;}
+      .factura-carta {page-break-after: always;}
+      .detalle-table {page-break-inside: auto;}
+    }
+  </style>
+</head>
+<body>
+  <div class="factura-carta">
+    <!-- Encabezado (repetido en cada hoja) -->
+    <table class="header-table">
+      <tr>
+        <td rowspan="5" style="width: 100px;">
+          <img src="https://github.com/rimedhn/demo/blob/main/Logo.png?raw=true" alt="Logo" />
+        </td>
+        <td class="titulo-factura" colspan="2"><span id="Sucursal"></span></td>
+      </tr>
+      <tr>
+        <td colspan="2"><b>RTN:</b> <span id="RTN"></span></td>
+      </tr>
+      <tr>
+        <td colspan="2"><b>Dirección:</b> <span id="Ruta"></span></td>
+      </tr>
+      <tr>
+        <td colspan="2"><b>Teléfono:</b> <span id="Telefono"></span></td>
+      </tr>
+      <tr>
+        <td colspan="2"><b>Email:</b> <span id="email"></span></td>
+      </tr>
+      <tr>
+        <td colspan="3"><b id="Tipo"></b></td>
+      </tr>
+    </table>
+    <table class="datos-table">
+      <tr>
+        <td colspan="2"><h2 id="TipoDoc"></h2></td>
+      </tr>
+      <tr>
+        <th style="width: 52%; text-align:left;">Datos del Cliente</th>
+        <th style="width: 48%; text-align:left;">Datos de la Factura</th>
+      </tr>
+      <tr>
+        <td>
+          <b>Cliente:</b> <span id="Cliente"></span><br />
+          <b>RTN:</b> <span id="RTN_cliente"></span><br />
+          <b>Teléfono:</b> <span id="Telefono_cliente"></span><br />
+          <b>Dirección:</b> <span id="Direccion_cliente"></span><br />
+          <b>Vendedor:</b> <span id="Vendedor"></span>
+        </td>
+        <td>
+          <b>Factura:</b> <span id="Factura"></span><br />
+          <b>Fecha:</b> <span id="Fecha"></span><br />
+          <b>CAI:</b> <span id="CAI"></span><br />
+          <b>Rango autorizado:</b> <span id="RangoAutorizado"></span><br />
+          <b>Fecha límite de emisión:</b> <span id="Vencimiento"></span><br />
+          <b>Cajero:</b> <span id="Caja"></span>
+        </td>
+      </tr>
+    </table>
+    <!-- Detalle de Productos -->
+    <table class="detalle-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Referencia</th>
+          <th style="width: 8%; text-align:right;">Cantidad</th>
+          <th style="width: 10%;">Talla</th>
+          <th style="width: 10%;">Color</th>
+          <th style="width: 29%;">Descripción</th>
+          <th style="width: 12%;">Marca</th>
+          <th style="width: 16%; text-align:right;">Importe</th>
+        </tr>
+      </thead>
+      <tbody id="productList"></tbody>
+    </table>
+    <!-- Pie de página con totales -->
+    <table class="totales-table">
+      <tfoot>
+        <tr>
+          <td style="width:80%; text-align:right;">Subtotal</td>
+          <td style="width:20%; text-align:right;" id="subtotal"></td>
+        </tr>
+        <tr>
+          <td style="text-align:right;">ISV incluido (15%)</td>
+          <td style="text-align:right;" id="isv"></td>
+        </tr>
+        <tr>
+          <td class="total-label" style="text-align:right;">Total</td>
+          <td class="total-label" style="text-align:right;" id="total"></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="barcode-container">
+      <img alt="Barcode Generator TEC-IT" id="barcode" />
+    </div>
+    <div class="footer-info">
+      Original: cliente, Copia: emisor<br />
+      www.rmposhn.com | indime.hn@gmail.com | (+504) 9359-3126
+    </div>
+    <div class="monto-letras">
+      MONTO EN LETRAS: <span id="montoLetras"></span>
+    </div>
+  </div>
+  <script>
+    // URLs de opensheet
+    var opensheetUrlGeneral = "https://opensheet.elk.sh/1VdD4AgpMbyMMCQg6LRJuFZh4LP3hC9WVFvr2UrETcEg/Ventas";
+    var opensheetUrlDetalle = "https://opensheet.elk.sh/1VdD4AgpMbyMMCQg6LRJuFZh4LP3hC9WVFvr2UrETcEg/Venta";
+    function getQueryParam(param) {
+      var urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+    function fetchJSON(url) {
+      return fetch(url).then(resp => resp.json());
+    }
+    function loadFactura() {
+      var noVenta = getQueryParam('no_venta');
+      if (!noVenta) {
+        alert("Parámetro no_venta faltante en la URL");
+        return;
+      }
+      Promise.all([
+        fetchJSON(opensheetUrlGeneral),
+        fetchJSON(opensheetUrlDetalle)
+      ])
+      .then(([ventas, detalles]) => {
+        var vg = ventas.find(r => r["No Venta"] == noVenta);
+        var productos = detalles.filter(r => r["No Venta"] == noVenta);
+        if (!vg) {
+          alert("Venta no encontrada en 'Ventas'");
+          return;
+        }
+        // Encabezado principal
+        document.getElementById("Sucursal").textContent = vg["Sucursal"] || "";
+        document.getElementById("RTN").textContent = vg["RTN"] || "";
+        document.getElementById("Ruta").textContent = vg["Ruta"] || "";
+        document.getElementById("Telefono").textContent = vg["Telefono"] || vg["Caja"] || "";
+        document.getElementById("email").textContent = vg["Email"] || "";
+        document.getElementById("Tipo").textContent = vg["Tipo"] || "";
+        document.getElementById("TipoDoc").textContent = vg["Tipo"] || "";
+        document.getElementById("Cliente").textContent = vg["Cliente"] || "";
+        document.getElementById("RTN_cliente").textContent = vg["RTN Cliente"] || vg["RTN"] || "";
+        document.getElementById("Telefono_cliente").textContent = vg["Telefono Cliente"] || vg["Caja"] || "";
+        document.getElementById("Direccion_cliente").textContent = vg["Direccion Cliente"] || vg["Ruta"] || "";
+        document.getElementById("Vendedor").textContent = vg["Vendedor"] || "";
+        document.getElementById("Factura").textContent = vg["Factura"] || vg["No Venta"] || "";
+        document.getElementById("Fecha").textContent = vg["Fecha"] || "";
+        document.getElementById("CAI").textContent = vg["CAI"] || "";
+        document.getElementById("RangoAutorizado").textContent = (vg["Rango inicial"] || "") + " - " + (vg["Rango final"] || "");
+        document.getElementById("Vencimiento").textContent = vg["Vencimiento"] || "";
+        document.getElementById("Caja").textContent = vg["Caja"] || "";
+        // Código de barras
+        document.getElementById("barcode").src =
+          "https://barcode.tec-it.com/barcode.ashx?data=" + encodeURIComponent(vg["Factura"] || vg["No Venta"]);
+        // Detalle productos y cálculo de totales
+        var productList = document.getElementById("productList");
+        productList.innerHTML = "";
+        var subtotal = 0;
+        var isv = 0;
+        var ISV_PORC = 0.15; // Porcentaje de ISV
+        productos.forEach(function(p) {
+          var rowHTML = productList.insertRow();
+          // Referencia
+          rowHTML.insertCell(0).textContent = p["Producto"] || "";
+          // Cantidad
+          var cantidad = parseFloat(p["Cantidad"]) || 0;
+          rowHTML.insertCell(1).textContent = cantidad;
+          // Talla
+          rowHTML.insertCell(2).textContent = p["Talla"] || "";
+          // Color
+          rowHTML.insertCell(3).textContent = p["Color"] || "";
+          // Descripción
+          rowHTML.insertCell(4).textContent = p["Descripcion"] || "";
+          // Marca
+          rowHTML.insertCell(5).textContent = p["Marca"] || "";
+          // Importe
+          var precio = parseFloat(p["Precio"]) || 0;
+          var importe = cantidad * precio;
+          rowHTML.insertCell(6).textContent = importe.toFixed(2);
+          subtotal += importe;
+        });
+        // El ISV está incluido en cada precio, solo desglosamos
+        isv = +(subtotal * ISV_PORC).toFixed(2);
+        var total = +(subtotal).toFixed(2);
+        document.getElementById("subtotal").textContent = subtotal.toFixed(2);
+        document.getElementById("isv").textContent = isv.toFixed(2);
+        document.getElementById("total").textContent = total.toFixed(2);
+        // Monto en letras (con decimales)
+        var words = montoALetras(total);
+        document.getElementById("montoLetras").textContent = words || "CERO LEMPIRAS";
+        window.print();
+      })
+      .catch(err => {
+        alert("Error al cargar datos: " + err);
+      });
+    }
+    // Convierte número a letras en español (con decimales)
+    function montoALetras(monto) {
+      if (isNaN(monto)) return "CERO LEMPIRAS";
+      let entero = Math.floor(monto);
+      let decimales = Math.round((monto - entero) * 100);
+      decimales = decimales < 10 ? "0" + decimales : decimales;
+      let letras = numALetras(entero);
+      return (letras || "CERO") + " LEMPIRAS CON " + decimales + "/100";
+    }
+    // Algoritmo español para números a letras
+    function numALetras(num) {
+      if (num === 0) return "CERO";
+      let unidades = ["", "UN", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"];
+      let decenas = ["", "DIEZ", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"];
+      let especiales = {11: "ONCE", 12: "DOCE", 13: "TRECE", 14: "CATORCE", 15: "QUINCE"};
+      let centenas = ["", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"];
+      let resultado = "";
+      if (num === 100) return "CIEN";
+      if (num > 999999) return "NÚMERO MUY GRANDE";
+      let miles = Math.floor(num / 1000);
+      let resto = num % 1000;
+      if (miles > 0) {
+        if (miles === 1) resultado += "MIL ";
+        else resultado += numALetras(miles) + " MIL ";
+      }
+      if (resto > 0) {
+        let centenasNum = Math.floor(resto / 100);
+        let decenasNum = Math.floor((resto % 100) / 10);
+        let unidadesNum = resto % 10;
+        if (centenasNum > 0) resultado += centenas[centenasNum] + " ";
+        let decenaUnida = resto % 100;
+        if (decenaUnida >= 11 && decenaUnida <= 15) {
+          resultado += especiales[decenaUnida] + " ";
+        } else if (decenaUnida < 10) {
+          resultado += unidades[decenaUnida] + " ";
+        } else if (decenaUnida === 10) {
+          resultado += "DIEZ ";
+        } else if (decenaUnida === 20) {
+          resultado += "VEINTE ";
+        } else if (decenaUnida > 20 && decenaUnida < 30) {
+          resultado += "VEINTI" + unidades[unidadesNum].toLowerCase() + " ";
+        } else {
+          resultado += decenas[decenasNum];
+          if (unidadesNum > 0) resultado += " Y " + unidades[unidadesNum];
+          resultado += " ";
+        }
+      }
+      return resultado.trim();
+    }
+    window.onload = loadFactura;
+  </script>
+</body>
+</html>
