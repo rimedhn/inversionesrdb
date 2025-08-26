@@ -27,14 +27,14 @@
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
-        word-break: break-word; /* Para direcciones largas de cliente */
+        word-break: break-word;
         white-space: normal;
         overflow-wrap: break-word;
       }
 
       .sin-bordes {
-      border-collapse: collapse;
-      border: 0px;
+        border-collapse: collapse;
+        border: 0px;
       }
       
       table,
@@ -42,7 +42,7 @@
       td {
         border: 1px solid black;
         padding: 8px;
-        word-break: break-word; /* Para direcciones largas de cliente */
+        word-break: break-word;
         white-space: normal;
         overflow-wrap: break-word;
       }
@@ -422,10 +422,21 @@
           row.insertCell(7).textContent = importe[i];
         }
 
-        // Convert amount to words (simplified version)
-        var total = parseFloat(getQueryParam("total"));
-        var words = numberToWords(total);
-        document.getElementById("montoLetras").textContent = words;
+        // Ajustado para decimales y centavos
+        var totalStr = getQueryParam("total");
+        var total = parseFloat(totalStr);
+
+        var lempiras = Math.floor(total);
+        var centavos = Math.round((total - lempiras) * 100);
+
+        var words = numberToWords(lempiras);
+        var montoEnLetras = words;
+
+        if (centavos > 0) {
+          montoEnLetras += " CON " + centavos + " CENTAVOS";
+        }
+
+        document.getElementById("montoLetras").textContent = montoEnLetras;
       }
 
       function numberToWords(number) {
