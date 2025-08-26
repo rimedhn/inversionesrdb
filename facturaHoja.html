@@ -149,16 +149,16 @@
               <b>RTN: <span id="rtncliente"></span></b><br />
               <b>Telefono: <span id="telefonocliente"></span></b><br />
               <b>Direccion: <span id="direccioncliente"></span></b><br />
-              <b>Vendedor: <span id="vendedor"></span></b><br />
+              <b>Email: <span id="emailcliente"></span></b><br />
             </div>
           </td>
           <td colspan="6" style="width: 50%;  white-space: nowrap; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
             <div style="text-align: left">
-              <b>Factura: <span id="factura"></span></b><br />
               <b>Fecha: <span id="date"></span></b><br />
               <b>CAI: <span id="cai"></span></b><br />
               <b>Rango autorizado: <span id="rango"></span></b><br />
               <b>Fecha limite de emision: <span id="limite"></span></b><br />
+              <b>Vendedor: <span id="vendedor"></span></b><br />
               <b>Cajero: <span id="cajero"></span></b><br />
             </div>
           </td>
@@ -365,6 +365,8 @@
           getQueryParam("telefonocliente");
         document.getElementById("direccioncliente").textContent =
           getQueryParam("direccioncliente");
+        document.getElementById("emailcliente").textContent =
+          getQueryParam("emailcliente");
         document.getElementById("vendedor").textContent =
           getQueryParam("vendedor");
         document.getElementById("factura").textContent =
