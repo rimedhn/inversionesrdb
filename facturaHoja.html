@@ -131,7 +131,7 @@
       <table style="width: 100%">
         <tr>
           <th colspan="12">
-            <b><h2 id="tipodoc"><b> FACTURA: <span id="factura"></span></b></h2></b>
+            <b><h2 id="tipodoc"></h2><h2>FACTURA: <span id="factura"></span></h2></b>
           </th>
         </tr>
         <tr>
@@ -401,6 +401,7 @@
         var referencia = getQueryParam("referencia").split(",");
         var cantidad = getQueryParam("cantidad").split(",");
         var color = getQueryParam("color").split(",");
+        var talla = getQueryParam("talla").split(",");
         var descripcion = getQueryParam("descripcion").split(",");
         var marca = getQueryParam("marca").split(",");
         var precio = getQueryParam("precio").split(",");
