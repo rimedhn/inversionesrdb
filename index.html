@@ -293,7 +293,7 @@
     function fetchJSON(url) {
       return fetch(url).then(resp => resp.json());
     }
-    function parseISV(p["Isv"]) {
+    function parseISV("Isv") {
       if (value == undefined) return 0;
       if (typeof value === "number") return value;
       let v = (""+value).toUpperCase().replace(",",".").trim();
