@@ -40,6 +40,15 @@
       font-size: 15px;
       vertical-align: top;
     }
+    .factura-num-main {
+      font-size: 2em;
+      margin: 0.3em 0 0.1em 0;
+      font-weight: bold;
+      letter-spacing: 1px;
+      border: none !important;
+      color: #222;
+      text-align: left;
+    }
     .logo-cell {
       padding: 0 10px 0 0;
       vertical-align: top;
@@ -64,7 +73,6 @@
       border: none !important;
       background: #fff !important;
     }
-    /* Tabla de productos */
     .venta-table {
       width: 100%;
       border-collapse: collapse;
@@ -93,6 +101,15 @@
     }
     .venta-table tr {
       page-break-inside: avoid;
+    }
+    .factura-num-repetido {
+      font-size: 17px;
+      background: #fff;
+      text-align: left !important;
+      font-weight: bold;
+      color: #222;
+      padding: 5px 0 5px 8px;
+      border: none !important;
     }
     .moneda {
       text-align: right !important;
@@ -141,6 +158,11 @@
       <tr><td><b>Dirección:</b> El Progreso Yoro, Barrio El Buenos Aires 17 calle 2-3 ave</td></tr>
       <tr><td><b>Teléfono:</b> 0000-0000</td></tr>
       <tr><td><b>Email:</b> correo@demo.com</td></tr>
+      <tr>
+        <td colspan="2" class="factura-num-main">
+          FACTURA: <span id="Factura"></span>
+        </td>
+      </tr>
     </table>
     <table class="datos-table" style="width:100%; margin-bottom:0;">
       <tr>
@@ -156,7 +178,6 @@
           <b>Vendedor:</b> <span id="Vendedor"></span>
         </td>
         <td>
-          <b>Factura:</b> 
           <b>Fecha:</b> <span id="Fecha"></span><br />
           <b>CAI:</b> <span id="CAI"></span><br />
           <b>Rango autorizado:</b> <span id="RangoAutorizado"></span><br />
@@ -169,9 +190,8 @@
     <table class="venta-table">
       <thead>
         <tr>
-          <!-- Estos datos se repiten en cada hoja impresa -->
-          <th colspan="8" style="background:#fff; font-size:18px; text-align:left;">
-            FACTURA: <span id="FacturaCab"></span> | FECHA: <span id="FechaCab"></span>
+          <th colspan="8" class="factura-num-repetido">
+            FACTURA: <span id="FacturaRepetida"></span>
           </th>
         </tr>
         <tr>
@@ -200,7 +220,31 @@
     </table>
   </div>
   <script>
-    // ...tus funciones y fetch igual...
+    var opensheetUrlGeneral = "https://opensheet.elk.sh/1VdD4AgpMbyMMCQg6LRJuFZh4LP3hC9WVFvr2UrETcEg/Ventas";
+    var opensheetUrlDetalle = "https://opensheet.elk.sh/1VdD4AgpMbyMMCQg6LRJuFZh4LP3hC9WVFvr2UrETcEg/Venta";
+    function getQueryParam(param) {
+      var urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+    function fetchJSON(url) {
+      return fetch(url).then(resp => resp.json());
+    }
+    function parseISV(value) {
+      if (value == undefined) return 0;
+      if (typeof value === "number") return value;
+      let v = (""+value).toUpperCase().replace(",",".").trim();
+      if (v === "EXENTO" || v === "EX" || v === "NO" || v === "" || v === "0" || v === "0.00") return 0;
+      if (v === "0.15" || v === "15" || v === "SI" || v === "GRAVADO15") return 0.15;
+      if (v === "0.18" || v === "18" || v === "GRAVADO18") return 0.18;
+      let num = parseFloat(v);
+      if (num === 0.15 || num === 0.18) return num;
+      if (num === 0) return 0;
+      return 0;
+    }
+    function formatCurrency(num) {
+      if (isNaN(num)) return "L 0.00";
+      return "L " + num.toLocaleString('es-HN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
     function loadFactura() {
       var noVenta = getQueryParam('no_venta');
       if (!noVenta) { alert("Parámetro no_venta faltante en la URL"); return; }
@@ -218,15 +262,13 @@
         document.getElementById("Direccion_cliente").textContent = vg["Direccion Cliente"] || vg["Ruta"] || "";
         document.getElementById("Vendedor").textContent = vg["Vendedor"] || "";
         document.getElementById("Factura").textContent = vg["Factura"] || vg["No Venta"] || "";
+        document.getElementById("FacturaRepetida").textContent = vg["Factura"] || vg["No Venta"] || "";
         document.getElementById("Fecha").textContent = vg["Fecha"] || "";
-        document.getElementById("FacturaCab").textContent = vg["Factura"] || vg["No Venta"] || "";
-        document.getElementById("FechaCab").textContent = vg["Fecha"] || "";
         document.getElementById("CAI").textContent = vg["CAI"] || "";
         document.getElementById("RangoAutorizado").textContent = (vg["Rango inicial"] || "") + " - " + (vg["Rango final"] || "");
         document.getElementById("Vencimiento").textContent = vg["Vencimiento"] || "";
         document.getElementById("Caja").textContent = vg["Caja"] || "";
-        // ...resto igual...
-        // Barcode y productos, totales...
+        // ...barcode y detalle de productos igual...
       })
       .catch(err => { alert("Error al cargar datos: " + err); });
     }
