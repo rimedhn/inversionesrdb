@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FACTURA</title>
+  <style>
+    @page {
+      size: letter;
+      margin: 0.7in 0.5in 1.1in 0.5in;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .factura-carta {
+      width: 8in;
+      margin: auto;
+      background: #fff;
+      min-height: 10in;
+      padding: 0;
+    }
+    .encabezado-factura {
+      width: 100%;
+      border: none;
+      background: #fff;
+      margin-bottom: 0;
+    }
+    .encabezado-factura .empresa {
+      font-size: 26px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      padding-bottom: 2px;
+    }
+    .encabezado-factura td {
+      border: none !important;
+      background: #fff;
+      padding: 1px 6px;
+      font-size: 15px;
+      vertical-align: top;
+    }
+    .logo-cell {
+      padding: 0 10px 0 0;
+      vertical-align: top;
+      width: 100px;
+    }
+    .logo-img {
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .datos-table th {
+      font-weight: bold;
+      font-size: 16px;
+      background: #fff;
+      text-align: left;
+    }
+    .datos-table,
+    .datos-table td,
+    .datos-table th {
+      border: none !important;
+      background: #fff !important;
+    }
+    /* Tabla de productos */
+    .venta-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+      margin: 0;
+      background: #fff;
+      page-break-inside: auto;
+    }
+    .venta-table th, .venta-table td {
+      padding: 3px 4px;
+      border: 1px solid #222;
+      font-size: 16px;
+      background: #fff;
+    }
+    .venta-table th {
+      background: #f4f4f4;
+      font-weight: bold;
+      text-align: right;
+      border-bottom: 2px solid #222;
+    }
+    .venta-table th:first-child {
+      text-align: left;
+    }
+    .venta-table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+    .venta-table tr {
+      page-break-inside: avoid;
+    }
+    .moneda {
+      text-align: right !important;
+      font-family: inherit;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .totales-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+      margin-top: 8px;
+      text-align: right;
+      background: #fff;
+    }
+    .totales-table td {
+      border: none;
+      padding: 2px 6px;
+      background: #fff;
+      font-size: 16px;
+    }
+    .totales-table .total-label {
+      font-weight: bold;
+      font-size: 18px;
+      border-top: 2px solid #222;
+      background: #fff;
+    }
+    @media print {
+      .venta-table thead { display: table-header-group; }
+      .venta-table tfoot { display: table-footer-group; break-inside: avoid; page-break-inside: avoid; }
+      .venta-table { page-break-inside: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="factura-carta">
+    <!-- Encabezado empresa y datos -->
+    <table class="encabezado-factura">
+      <tr>
+        <td class="logo-cell" rowspan="6">
+          <img class="logo-img" src="https://github.com/rimedhn/inversionesrdb/blob/main/Logo%20Inversiones%20RDB.jpeg?raw=true" alt="Logo" />
+        </td>
+        <td class="empresa">INVERSIONES RDB S DE R. L</td>
+      </tr>
+      <tr><td><b>RTN:</b> 05019023506377</td></tr>
+      <tr><td><b>Dirección:</b> El Progreso Yoro, Barrio El Buenos Aires 17 calle 2-3 ave</td></tr>
+      <tr><td><b>Teléfono:</b> 0000-0000</td></tr>
+      <tr><td><b>Email:</b> correo@demo.com</td></tr>
+    </table>
+    <table class="datos-table" style="width:100%; margin-bottom:0;">
+      <tr>
+        <th style="width:52%;">Datos del Cliente</th>
+        <th style="width:48%;">Datos de la Factura</th>
+      </tr>
+      <tr>
+        <td>
+          <b>Cliente:</b> <span id="NombreCliente"></span><br />
+          <b>RTN:</b> <span id="RTN_cliente"></span><br />
+          <b>Teléfono:</b> <span id="Telefono_cliente"></span><br />
+          <b>Dirección:</b> <span id="Direccion_cliente"></span><br />
+          <b>Vendedor:</b> <span id="Vendedor"></span>
+        </td>
+        <td>
+          <b>Factura:</b> 
+          <b>Fecha:</b> <span id="Fecha"></span><br />
+          <b>CAI:</b> <span id="CAI"></span><br />
+          <b>Rango autorizado:</b> <span id="RangoAutorizado"></span><br />
+          <b>Fecha límite de emisión:</b> <span id="Vencimiento"></span><br />
+          <b>Cajero:</b> <span id="Caja"></span>
+        </td>
+      </tr>
+    </table>
+    <!-- Tabla de productos -->
+    <table class="venta-table">
+      <thead>
+        <tr>
+          <!-- Estos datos se repiten en cada hoja impresa -->
+          <th colspan="8" style="background:#fff; font-size:18px; text-align:left;">
+            FACTURA: <span id="FacturaCab"></span> | FECHA: <span id="FechaCab"></span>
+          </th>
+        </tr>
+        <tr>
+          <th style="width: 11%;">Referencia</th>
+          <th style="width: 7%; text-align:right;">Cantidad</th>
+          <th style="width: 10%;">Talla</th>
+          <th style="width: 10%;">Color</th>
+          <th style="width: 25%;">Descripción</th>
+          <th style="width: 11%;">Marca</th>
+          <th style="width: 11%; text-align:right;">Precio</th>
+          <th style="width: 15%; text-align:right;">Importe</th>
+        </tr>
+      </thead>
+      <tbody id="productList">
+        <!-- Productos -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="8" style="padding-top:14px;">
+            <table class="totales-table">
+              <!-- ...pie de totales igual... -->
+            </table>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <script>
+    // ...tus funciones y fetch igual...
+    function loadFactura() {
+      var noVenta = getQueryParam('no_venta');
+      if (!noVenta) { alert("Parámetro no_venta faltante en la URL"); return; }
+      Promise.all([
+        fetchJSON(opensheetUrlGeneral),
+        fetchJSON(opensheetUrlDetalle)
+      ])
+      .then(([ventas, detalles]) => {
+        var vg = ventas.find(r => r["No Venta"] == noVenta);
+        var productos = detalles.filter(r => r["No Venta"] == noVenta);
+        if (!vg) { alert("Venta no encontrada en 'Ventas'"); return; }
+        document.getElementById("NombreCliente").textContent = vg["NombreCliente"] || "";
+        document.getElementById("RTN_cliente").textContent = vg["RTN Cliente"] || vg["RTN"] || "";
+        document.getElementById("Telefono_cliente").textContent = vg["Telefono Cliente"] || vg["Caja"] || "";
+        document.getElementById("Direccion_cliente").textContent = vg["Direccion Cliente"] || vg["Ruta"] || "";
+        document.getElementById("Vendedor").textContent = vg["Vendedor"] || "";
+        document.getElementById("Factura").textContent = vg["Factura"] || vg["No Venta"] || "";
+        document.getElementById("Fecha").textContent = vg["Fecha"] || "";
+        document.getElementById("FacturaCab").textContent = vg["Factura"] || vg["No Venta"] || "";
+        document.getElementById("FechaCab").textContent = vg["Fecha"] || "";
+        document.getElementById("CAI").textContent = vg["CAI"] || "";
+        document.getElementById("RangoAutorizado").textContent = (vg["Rango inicial"] || "") + " - " + (vg["Rango final"] || "");
+        document.getElementById("Vencimiento").textContent = vg["Vencimiento"] || "";
+        document.getElementById("Caja").textContent = vg["Caja"] || "";
+        // ...resto igual...
+        // Barcode y productos, totales...
+      })
+      .catch(err => { alert("Error al cargar datos: " + err); });
+    }
+    window.onload = loadFactura;
+  </script>
+</body>
+</html>
