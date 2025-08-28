@@ -33,7 +33,7 @@
       width: 100%;
       border-collapse: collapse;
       margin: 0;
-      font-size: 16px;
+      font-size: 10px;
     }
     .venta-table th, .venta-table td {
       padding: 3px 4px;
@@ -356,7 +356,7 @@
         productList.innerHTML = "";
         productos.forEach(function(p) {
           var rowHTML = productList.insertRow();
-          rowHTML.insertCell(0).textContent = p["Producto"] || "";
+          rowHTML.insertCell(0).textContent = p["Referencia"] || "";
           let cantidad = parseFloat(p["Cantidad"]) || 0;
           rowHTML.insertCell(1).textContent = cantidad;
           rowHTML.insertCell(2).textContent = p["Talla"] || "";
