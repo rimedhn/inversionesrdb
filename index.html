@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FACTURA</title>
+  <link rel="icon" href="https://github.com/rimedhn/inversionesrdb/blob/main/Logo%20Inversiones%20RDB.jpeg?raw=true" type="image/x-icon">
+  <style>
+    @page {
+      size: letter;
+      margin: 0.7in 0.5in 1.1in 0.5in;
+      @bottom-right {
+        content: "Página " counter(page);
+        font-size: 14px;
+        color: #333;
+      }
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .factura-carta {
+      width: 8in;
+      margin: auto;
+      background: #fff;
+      min-height: 10in;
+      padding: 0;
+      position: relative;
+    }
+    .venta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+      font-size: 10px;
+    }
+    .venta-table th, .venta-table td {
+      padding: 3px 4px;
+      border: 1px solid #222;
+      vertical-align: top;
+      font-size: 16px;
+      background: #fff;
+    }
+    .venta-table th {
+      background: #f4f4f4;
+      font-weight: bold;
+    }
+    .venta-table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+    .venta-table tr {
+      page-break-inside: avoid;
+    }
+    /* Alineación personalizada de columnas de detalle */
+    .venta-table td.ref,
+    .venta-table th.ref {
+      text-align: center;
+    }
+    .venta-table td.cant,
+    .venta-table th.cant {
+      text-align: center;
+    }
+    .venta-table td.talla,
+    .venta-table th.talla {
+      text-align: center;
+    }
+    .venta-table td.color,
+    .venta-table th.color {
+      text-align: center;
+    }
+    .venta-table td.desc,
+    .venta-table th.desc {
+      text-align: left;
+    }
+    .venta-table td.marca,
+    .venta-table th.marca {
+      text-align: center;
+    }
+    .venta-table td.precio,
+    .venta-table th.precio {
+      text-align: right;
+    }
+    .venta-table td.importe,
+    .venta-table th.importe {
+      text-align: right;
+    }
+    .encabezado-factura {
+      font-size: 15px;
+      background: #fff;
+      border: none;
+      margin-bottom: 0;
+    }
+    .encabezado-factura .empresa {
+      font-size: 26px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      padding-bottom: 2px;
+    }
+    .encabezado-factura td, .encabezado-factura th {
+      border: none !important;
+      background: #fff;
+      padding: 1px 6px;
+      font-size: 15px;
+      vertical-align: top;
+    }
+    .datos-table th {
+      font-weight: bold;
+      font-size: 16px;
+      background: #fff;
+      text-align: left;
+    }
+    .logo-cell {
+      padding: 0 10px 0 0;
+      vertical-align: top;
+      width: 100px;
+    }
+    .logo-img {
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .totales-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+      margin-top: 8px;
+      text-align: right;
+      background: #fff;
+    }
+    .totales-table td {
+      border: none;
+      padding: 2px 6px;
+      background: #fff;
+      font-size: 16px;
+    }
+    .totales-table .total-label {
+      font-weight: bold;
+      font-size: 18px;
+      border-top: 2px solid #222;
+      background: #fff;
+    }
+    .barcode-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      width: 100%;
+    }
+    .footer-info {
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.5;
+      background: #fff;
+      word-break: break-word;
+      max-width: 80%;
+      margin-right: 10px;
+    }
+    .barcode-container {
+      text-align: right;
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+    }
+    .monto-letras {
+      text-align: left;
+      font-weight: bold;
+      font-size: 17px;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      letter-spacing: 0.5px;
+      background: #f7f7f7;
+      padding: 3px 8px;
+      border-radius: 8px;
+      width: fit-content;
+      display: inline-block;
+    }
+    .totales-table .label { text-align: right; }
+    .totales-table .value { text-align: right; min-width:110px;}
+    .moneda {
+      text-align: right !important;
+      font-family: inherit;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    @media print {
+      body, .factura-carta {
+        background: #fff !important;
+      }
+      .venta-table thead { display: table-header-group; }
+      .venta-table tfoot { display: table-footer-group; }
+      .factura-carta { page-break-after: always; }
+      .venta-table { page-break-inside: auto; }
+      .barcode-footer { margin-bottom: 0.1in;}
+      .pagina-num { display: none;}
+    }
+  </style>
+</head>
+<body>
+  <div class="factura-carta">
+    <table class="venta-table">
+      <thead>
+        <!-- Encabezado de empresa y factura -->
+        <tr class="encabezado-factura">
+          <td colspan="9" style="padding-bottom:0;">
+            <table style="width:100%; border:none; border-collapse:collapse;">
+              <tr>
+                <td class="logo-cell" rowspan="6">
+                  <img class="logo-img" src="https://github.com/rimedhn/inversionesrdb/blob/main/Logo%20Inversiones%20RDB.jpeg?raw=true" alt="Logo" />
+                </td>
+                <td class="empresa">INVERSIONES RDB S DE R. L</td>
+              </tr>
+              <tr><td><b>RTN:</b> 05019023506377</td></tr>
+              <tr><td><b>Dirección:</b> El Progreso Yoro, Barrio El Buenos Aires 17 calle 2-3 ave</td></tr>
+              <tr><td><b>Teléfono:</b> 0000-0000</td></tr>
+              <tr><td><b>Email:</b> correo@demo.com</td></tr>
+            </table>
+            <hr style="margin:6px 0 3px 0; border:none; border-top:1px solid #ccc;">
+            <table class="datos-table" style="width:100%; margin-bottom:0;">
+              <tr><td colspan="12"><h1  style="border:none; margin: 2px;"><b id="TipoDoc">FACTURA: <span id="Factura"></span></b></h1></td></tr>
+              <tr>
+                <th style="width:52%;">Datos del Cliente</th>
+                <th style="width:48%;">Datos de la Factura</th>
+              </tr>
+              <tr>
+                <td>
+                  <b>Cliente:</b> <span id="NombreCliente"></span><br />
+                  <b>RTN:</b> <span id="RTN_cliente"></span><br />
+                  <b>Teléfono:</b> <span id="Telefono_cliente"></span><br />
+                  <b>Dirección:</b> <span id="Direccion_cliente"></span><br />
+                  <b>Vendedor:</b> <span id="Vendedor"></span>
+                </td>
+                <td>
+                  <b>Factura:</b> 
+                  <b>Fecha:</b> <span id="Fecha"></span><br />
+                  <b>CAI:</b> <span id="CAI"></span><br />
+                  <b>Rango autorizado:</b> <span id="RangoAutorizado"></span><br />
+                  <b>Fecha límite de emisión:</b> <span id="Vencimiento"></span><br />
+                  <b>Cajero:</b> <span id="Caja"></span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <!-- Encabezado de detalle -->
+        <tr>
+          <th class="ref" style="width: 11%;">Referencia</th>
+          <th class="cant" style="width: 7%;">Cantidad</th>
+          <th class="talla" style="width: 10%;">Talla</th>
+          <th class="color" style="width: 10%;">Color</th>
+          <th class="desc" style="width: 25%;">Descripción</th>
+          <th class="marca" style="width: 11%;">Marca</th>
+          <th class="precio" style="width: 11%;">Precio</th>
+          <th class="importe" style="width: 15%;">Importe</th>
+        </tr>
+      </thead>
+      <tbody id="productList">
+        <!-- Productos -->
+      </tbody>
+      <tfoot>
+        <!-- Pie con totales y datos -->
+        <tr>
+          <td colspan="8" style="padding-top:14px;">
+            <table class="totales-table">
+              <tr>
+                <td style="width:60%;">
+                  <span class="monto-letras">MONTO EN LETRAS: <span id="montoLetras"></span></span>
+                </td>
+                <td style="width:40%;"></td>
+              </tr>
+              <tr>
+                <td class="label">Subtotal:</td>
+                <td class="value moneda"><span id="subtotal"></span></td>
+              </tr>
+              <tr>
+                <td class="label">Descuentos y rebajas:</td>
+                <td class="value moneda"></td>
+              </tr>
+              <tr>
+                <td class="label">Valor exento:</td>
+                <td class="value moneda"><span id="valorExento"></span></td>
+              </tr>
+              <tr>
+                <td class="label">Valor exonerado:</td>
+                <td class="value moneda"></td>
+              </tr>
+              <tr>
+                <td class="label">Gravado con 15%:</td>
+                <td class="value moneda"><span id="gravado15"></span></td>
+              </tr>
+              <tr>
+                <td class="label">Gravado con 18%:</td>
+                <td class="value moneda"><span id="gravado18"></span></td>
+              </tr>
+              <tr>
+                <td class="label">ISV 15%:</td>
+                <td class="value moneda"><span id="isv15"></span></td>
+              </tr>
+              <tr>
+                <td class="label">ISV 18%:</td>
+                <td class="value moneda"><span id="isv18"></span></td>
+              </tr>
+              <tr>
+                <td class="total-label">Total venta:</td>
+                <td class="total-label moneda"><span id="total"></span></td>
+              </tr>
+            </table>
+            <div class="barcode-footer">
+              <div class="footer-info">
+                Original: cliente, Copia: emisor<br />
+                www.rmposhn.com | indime.hn@gmail.com | (+504) 9359-3126
+              </div>
+              <div class="barcode-container">
+                <img alt="Barcode Generator TEC-IT" id="barcode" />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <script>
+    var opensheetUrlGeneral = "https://opensheet.elk.sh/1VdD4AgpMbyMMCQg6LRJuFZh4LP3hC9WVFvr2UrETcEg/Ventas";
+    var opensheetUrlDetalle = "https://opensheet.elk.sh/1VdD4AgpMbyMMCQg6LRJuFZh4LP3hC9WVFvr2UrETcEg/Venta";
+    function getQueryParam(param) {
+      var urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+    function fetchJSON(url) {
+      return fetch(url).then(resp => resp.json());
+    }
+    function parseISV(value) {
+      if (value == undefined) return 0;
+      if (typeof value === "number") return value;
+      let v = (""+value).toUpperCase().replace(",",".").trim();
+      // Exento
+      if (v === "EXENTO" || v === "EX" || v === "NO" || v === "" || v === "0" || v === "0.00") return 0;
+      // Gravado 15%
+      if (v === "0.15" || v === "15" || v === "SI" || v === "GRAVADO15") return 0.15;
+      // Gravado 18%
+      if (v === "0.18" || v === "18" || v === "GRAVADO18") return 0.18;
+      let num = parseFloat(v);
+      if (num === 0.15 || num === 0.18) return num;
+      if (num === 0) return 0;
+      return 0;
+    }
+    function formatCurrency(num) {
+      if (isNaN(num)) return "L 0.00";
+      return "L " + num.toLocaleString('es-HN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+    function loadFactura() {
+      var noVenta = getQueryParam('no_venta');
+      if (!noVenta) {
+        alert("Parámetro no_venta faltante en la URL");
+        return;
+      }
+      Promise.all([
+        fetchJSON(opensheetUrlGeneral),
+        fetchJSON(opensheetUrlDetalle)
+      ])
+      .then(([ventas, detalles]) => {
+        var vg = ventas.find(r => r["No Venta"] == noVenta);
+        var productos = detalles.filter(r => r["No Venta"] == noVenta);
+        if (!vg) {
+          alert("Venta no encontrada en 'Ventas'");
+          return;
+        }
+        document.getElementById("NombreCliente").textContent = vg["NombreCliente"] || "";
+        document.getElementById("RTN_cliente").textContent = vg["RTN Cliente"] || vg["RTN"] || "";
+        document.getElementById("Telefono_cliente").textContent = vg["Telefono Cliente"] || vg["Caja"] || "";
+        document.getElementById("Direccion_cliente").textContent = vg["Direccion Cliente"] || vg["Ruta"] || "";
+        document.getElementById("Vendedor").textContent = vg["Vendedor"] || "";
+        document.getElementById("Factura").textContent = vg["Factura"] || vg["No Venta"] || "";
+        document.getElementById("Fecha").textContent = vg["Fecha"] || "";
+        document.getElementById("CAI").textContent = vg["CAI"] || "";
+        document.getElementById("RangoAutorizado").textContent = (vg["Rango inicial"] || "") + " - " + (vg["Rango final"] || "");
+        document.getElementById("Vencimiento").textContent = vg["Vencimiento"] || "";
+        document.getElementById("Caja").textContent = vg["Caja"] || "";
+        document.getElementById("barcode").src =
+          "https://barcode.tec-it.com/barcode.ashx?data=" + encodeURIComponent(vg["No Venta"]);
+
+        let subtotal = 0, valorExento = 0, gravado15 = 0, gravado18 = 0, isv15 = 0, isv18 = 0;
+        let ISV_15 = 0.15, ISV_18 = 0.18;
+        let productList = document.getElementById("productList");
+        productList.innerHTML = "";
+        productos.forEach(function(p) {
+          var rowHTML = productList.insertRow();
+          rowHTML.insertCell().className = "ref";
+          rowHTML.cells[0].textContent = p["Referencia"] || "";
+
+          let cantidad = parseFloat(p["Cantidad"]) || 0;
+          rowHTML.insertCell().className = "cant";
+          rowHTML.cells[1].textContent = cantidad;
+
+          rowHTML.insertCell().className = "talla";
+          rowHTML.cells[2].textContent = p["Talla"] || "";
+
+          rowHTML.insertCell().className = "color";
+          rowHTML.cells[3].textContent = p["Color"] || "";
+
+          rowHTML.insertCell().className = "desc";
+          rowHTML.cells[4].textContent = p["Descripcion"] || "";
+
+          rowHTML.insertCell().className = "marca";
+          rowHTML.cells[5].textContent = p["Marca"] || "";
+
+          let precio = parseFloat(p["Precio"]) || 0;
+          rowHTML.insertCell().className = "precio";
+          rowHTML.cells[6].innerHTML = '<span class="moneda">' + formatCurrency(precio) + '</span>';
+
+          let importe = cantidad * precio;
+          rowHTML.insertCell().className = "importe";
+          rowHTML.cells[7].innerHTML = '<span class="moneda">' + formatCurrency(importe) + '</span>';
+
+          subtotal += importe;
+
+          let isvProd = parseISV(p["Isv"]);
+          if (isvProd === 0) {
+            valorExento += importe;
+          } else if (isvProd === 0.15) {
+            gravado15 += importe;
+            isv15 += +(importe * ISV_15 / (1 + ISV_15));
+          } else if (isvProd === 0.18) {
+            gravado18 += importe;
+            isv18 += +(importe * ISV_18 / (1 + ISV_18));
+          }
+        });
+        document.getElementById("subtotal").textContent = formatCurrency(subtotal);
+        document.getElementById("valorExento").textContent = formatCurrency(valorExento);
+        document.getElementById("gravado15").textContent = formatCurrency(gravado15);
+        document.getElementById("gravado18").textContent = formatCurrency(gravado18);
+        document.getElementById("isv15").textContent = formatCurrency(isv15);
+        document.getElementById("isv18").textContent = formatCurrency(isv18);
+        document.getElementById("total").textContent = formatCurrency(subtotal);
+        var words = montoALetras(subtotal);
+        document.getElementById("montoLetras").textContent = words || "CERO LEMPIRAS";
+        window.print();
+      })
+      .catch(err => {
+        alert("Error al cargar datos: " + err);
+      });
+    }
+    function montoALetras(monto) {
+      if (isNaN(monto)) return "CERO LEMPIRAS";
+      let entero = Math.floor(monto);
+      let decimales = Math.round((monto - entero) * 100);
+      decimales = decimales < 10 ? "0" + decimales : decimales;
+      let letras = numALetras(entero);
+      return (letras || "CERO") + " LEMPIRAS CON " + decimales + "/100";
+    }
+    function numALetras(num) {
+      if (num === 0) return "CERO";
+      let unidades = ["", "UN", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"];
+      let decenas = ["", "DIEZ", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"];
+      let especiales = {11: "ONCE", 12: "DOCE", 13: "TRECE", 14: "CATORCE", 15: "QUINCE"};
+      let centenas = ["", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"];
+      let resultado = "";
+      if (num === 100) return "CIEN";
+      if (num > 999999) return "NÚMERO MUY GRANDE";
+      let miles = Math.floor(num / 1000);
+      let resto = num % 1000;
+      if (miles > 0) {
+        if (miles === 1) resultado += "MIL ";
+        else resultado += numALetras(miles) + " MIL ";
+      }
+      if (resto > 0) {
+        let centenasNum = Math.floor(resto / 100);
+        let decenasNum = Math.floor((resto % 100) / 10);
+        let unidadesNum = resto % 10;
+        if (centenasNum > 0) resultado += centenas[centenasNum] + " ";
+        let decenaUnida = resto % 100;
+        if (decenaUnida >= 11 && decenaUnida <= 15) {
+          resultado += especiales[decenaUnida] + " ";
+        } else if (decenaUnida < 10) {
+          resultado += unidades[decenaUnida] + " ";
+        } else if (decenaUnida === 10) {
+          resultado += "DIEZ ";
+        } else if (decenaUnida === 20) {
+          resultado += "VEINTE ";
+        } else if (decenaUnida > 20 && decenaUnida < 30) {
+          resultado += "VEINTI" + unidades[unidadesNum].toLowerCase() + " ";
+        } else {
+          resultado += decenas[decenasNum];
+          if (unidadesNum > 0) resultado += " Y " + unidades[unidadesNum];
+          resultado += " ";
+        }
+      }
+      return resultado.trim();
+    }
+    window.onload = loadFactura;
+  </script>
+</body>
+</html>
