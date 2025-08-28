@@ -371,7 +371,7 @@
         productList.innerHTML = "";
         productos.forEach(function(p) {
           var rowHTML = productList.insertRow();
-          rowHTML.insertCell(0).textContent = p["Producto"] || "";
+          rowHTML.insertCell(0).textContent = p["Referencia"] || "";
           let cantidad = parseFloat(p["Cantidad"]) || 0;
           rowHTML.insertCell(1).textContent = cantidad;
           rowHTML.insertCell(2).textContent = p["Talla"] || "";
