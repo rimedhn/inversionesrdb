@@ -201,6 +201,13 @@
       /* No repetir encabezado de factura y pie en cada hoja */
       .encabezado-factura { display: table-row-group; }
       .datos-table { display: table-row-group; }
+      .datos-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+  .datos-table th, .datos-table td {
+    width: 50% !important;
+  }
       .barcode-footer { display: block; }
     }
   </style>
