@@ -161,7 +161,7 @@
     }
     .barcode-container {
       text-align: right;
-      min-width: 120px;
+      min-width: 100px;
       display: flex;
       align-items: center;
     }
@@ -267,7 +267,7 @@
             <table class="totales-table">
               <tr>
                 <td style="width:60%;">
-                  <span class="monto-letras">MONTO EN LETRAS: <span id="montoLetras"></span></span>
+                  <!-- fila monto letras -->
                 </td>
                 <td style="width:40%;"></td>
               </tr>
@@ -307,13 +307,13 @@
                 <td class="total-label">Total venta:</td>
                 <td class="total-label moneda"><span id="total"></span></td>
               </tr>
+              <tr><span class="monto-letras">SON: <span id="montoLetras"></span></span></tr>
           </td>
         </tr>
       </tfoot>
     </table>
   </div>
   
-            </table>
             <div class="barcode-footer">
               <div class="footer-info">
                 Original: cliente, Copia: emisor<br />
