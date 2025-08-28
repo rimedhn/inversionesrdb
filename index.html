@@ -271,7 +271,7 @@
             <span>No. Registro exonerados:</span><span></span><br>
             <span>No. Registro SAG:</span><span></span><br>
             <span>--------------------------------------</span><span></span><br>
-            <b><span id="Observaciones">Observaciones:</span></b><span></span><br>
+            <b><span id="Observacion">Observaciones:</span></b><span></span><br>
           </td>
           <td colspan="4" style="padding-top:14px;">
             <table class="totales-table">
@@ -396,7 +396,7 @@
         document.getElementById("RangoAutorizado").textContent = (vg["Rango inicial"] || "") + " - " + (vg["Rango final"] || "");
         document.getElementById("Vencimiento").textContent = vg["Vencimiento"] || "";
         document.getElementById("Caja").textContent = vg["Caja"] || "";
-        document.getElementById("Observaciones").textContent = vg["Observaciones"] || "";
+        document.getElementById("Observacion").textContent = vg["Observacion"] || "";
         document.getElementById("barcode").src =
           "https://barcode.tec-it.com/barcode.ashx?data=" + encodeURIComponent(vg["No Venta"]);
 
