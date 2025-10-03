@@ -6,6 +6,7 @@
   <title>FACTURA</title>
   <link rel="icon" href="https://github.com/rimedhn/inversionesrdb/blob/main/LOGO%20NEGRO%20REDONDO%20RDB.png?raw=true" type="image/x-icon">
   <style>
+    /* ... (el CSS es igual, no se modifica nada aquí) ... */
     @page {
       size: letter;
       margin: 0.7in 0.5in 1.1in 0.5in;
@@ -223,7 +224,7 @@
 </head>
 <body>
   <div class="factura-carta">
-    <!-- Encabezado de empresa y factura (fuera de thead) -->
+    <!-- Encabezado de empresa y factura (fuera de thead) ... igual ... -->
     <table style="width:100%">
       <tr>
         <td style="padding-bottom:0;">
@@ -284,7 +285,6 @@
         <!-- Productos -->
       </tbody>
       <tfoot>
-        <!-- Pie con totales y datos -->
         <tr>
           <td colspan="8" style="padding-top:14px;">
           <tr>
@@ -310,8 +310,8 @@
                 <td class="label">Valor exento:</td>
                 <td class="value moneda"><span id="valorExento"></span></td>
               </tr>
-              <!-- Fila para valor exonerado (puede estar oculta por defecto) -->
-              <tr class="valor-exonerado-fila" style="display:none;">
+              <!-- Fila para valor exonerado (siempre visible) -->
+              <tr class="valor-exonerado-fila">
                 <td class="label">Valor exonerado:</td>
                 <td class="value moneda"><span id="valorExonerado"></span></td>
               </tr>
@@ -483,62 +483,26 @@
           }
         });
 
-        // --- Mostrar/ocultar impuestos según tipo de factura ---
         var tipoImpuesto = (vg["Impuesto"] || "").toUpperCase().trim();
-        // Referencias a filas de la tabla de totales
-        var filaValorExento = document.getElementById("valorExento").parentElement.parentElement;
-        var filaValorExonerado = document.querySelector('.valor-exonerado-fila');
-        var filaGravado15 = document.getElementById("gravado15").parentElement.parentElement;
-        var filaGravado18 = document.getElementById("gravado18").parentElement.parentElement;
-        var filaISV15 = document.getElementById("isv15").parentElement.parentElement;
-        var filaISV18 = document.getElementById("isv18").parentElement.parentElement;
 
-        // Reset filas
-        filaValorExento.style.display = "";
-        filaGravado15.style.display = "";
-        filaGravado18.style.display = "";
-        filaISV15.style.display = "";
-        filaISV18.style.display = "";
-        if (filaValorExonerado) filaValorExonerado.style.display = "none";
-
+        // --- Mostrar siempre todas las filas, solo ajustar valores ---
         if (tipoImpuesto === "EXENTO") {
-          // Si la factura es totalmente exenta
           valorExento = subtotal;
           gravado15 = 0;
           gravado18 = 0;
           isv15 = 0;
           isv18 = 0;
-          filaValorExento.style.display = "";
-          filaValorExento.querySelector('.label').textContent = "Valor exento:";
-          filaGravado15.style.display = "none";
-          filaGravado18.style.display = "none";
-          filaISV15.style.display = "none";
-          filaISV18.style.display = "none";
-          if (filaValorExonerado) filaValorExonerado.style.display = "none";
+          document.getElementById("valorExonerado").textContent = formatCurrency(0);
         } else if (tipoImpuesto === "EXONERADO") {
-          // Si la factura es totalmente exonerada
+          document.getElementById("valorExonerado").textContent = formatCurrency(subtotal);
           valorExento = 0;
           gravado15 = 0;
           gravado18 = 0;
           isv15 = 0;
           isv18 = 0;
-          filaValorExento.style.display = "none";
-          filaGravado15.style.display = "none";
-          filaGravado18.style.display = "none";
-          filaISV15.style.display = "none";
-          filaISV18.style.display = "none";
-          if (filaValorExonerado) {
-            filaValorExonerado.style.display = "";
-            document.getElementById("valorExonerado").textContent = formatCurrency(subtotal);
-          }
         } else {
-          // "GRAVADO" u otro valor: factura normal, mostrar todo
-          filaValorExento.style.display = "";
-          filaGravado15.style.display = "";
-          filaGravado18.style.display = "";
-          filaISV15.style.display = "";
-          filaISV18.style.display = "";
-          if (filaValorExonerado) filaValorExonerado.style.display = "none";
+          document.getElementById("valorExonerado").textContent = formatCurrency(0);
+          // El resto de valores ya calculados normalmente
         }
 
         // Asignar valores a los campos
